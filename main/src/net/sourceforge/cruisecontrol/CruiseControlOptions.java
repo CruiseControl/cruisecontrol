@@ -47,7 +47,7 @@ import org.mortbay.log.Log;
 
 import net.sourceforge.cruisecontrol.launch.Options;
 
-public class CruiseControlOptions implements Options {
+public final class CruiseControlOptions implements Options {
 
     /* All keys used for recognizing settings */
     public static final String KEY_CONFIG_FILE = "configfile";
@@ -110,11 +110,11 @@ public class CruiseControlOptions implements Options {
      *
      * @param owner the object allowing to change the configuration through {@link #setOption(String, String, Object)}
      * @return the initialized instance of {@link CruiseControlOptions}
-     * @throws CruiseControlException
+     * @throws CruiseControlException when already initialized
      */
     public static CruiseControlOptions getInstance(final Object owner) throws CruiseControlException {
         if (config != null) {
-            throw new CruiseControlException("Settings was already initialized. Use getInstance()");
+            throw new CruiseControlException("Options was already initialized. Use getInstance()");
         }
         config = new CruiseControlOptions(owner);
         return config;
@@ -193,7 +193,7 @@ public class CruiseControlOptions implements Options {
         if (opt.type == File.class) {
             File f = new File(val);
             if (!f.exists()) {
-                throw new IllegalArgumentException(key + "=" + val + ": file does not exist");
+                throw new IllegalArgumentException(key + "=" + f.getAbsolutePath() + ": file does not exist");
             }
             v = f;
         }
@@ -356,13 +356,10 @@ public class CruiseControlOptions implements Options {
     }
 
     /**
-     * Constructor. It is hidden since the class can only be used as singleton, but protected to be
-     * overridable for test purposes
-     *
+     * Constructor. It is hidden since the class can only be used as singleton.
      * @param owner the object allows to change the configuration through {@link #setOption(String, String, Object)}
-     * @throws CruiseControlException
      */
-    protected CruiseControlOptions(final Object owner) throws CruiseControlException {
+    private CruiseControlOptions(final Object owner) {
         this.owner = owner;
     }
 

@@ -419,7 +419,7 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
     } // setWorkingDir
 
     /**
-     * Creates object into which <code>{@code <exec />}</code> tag will be set. Each call returns new
+     * Creates object into which {@code <exec />} tag will be set. Each call returns new
      * object which is expected to be set by CC. The attribute is not required; if not
      * specified, nothing will be executed.
      *
@@ -608,6 +608,8 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
     /**
      * Gets the list of IDs of the scripts known (either registered when called prior to {@link #validate()},
      * or ready to be executed when called after). The method is just for testing purposes.
+     *
+     * @return new instance of ID collection
      */
     public Collection<String> getKnownIDs() {
         final Collection<String> ids = new HashSet<String>(scripts.size());
@@ -634,7 +636,8 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
         abstract boolean disable();
 
         /** Checks, if script ID was set by {@link #setID(String)}. As the <i>id</i> is required,
-         *  do not forget to call this method when overriding! */
+         *  do not forget to call this method when overriding!
+         *  @throws CruiseControlException when the object is not properly configured */
         public void validate() throws CruiseControlException {
             ValidationHelper.assertIsSet(id, "id", getClass());
         }

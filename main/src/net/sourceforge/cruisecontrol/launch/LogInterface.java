@@ -40,17 +40,16 @@ package net.sourceforge.cruisecontrol.launch;
 public interface LogInterface {
    
     /** Passes error message to a log 
-     *  @param message */ 
+     *  @param message the message to pass */
     void error(Object message);
     /** Passes warning message to a log 
-     *  @param message */ 
+     *  @param message the message to pass */
     void warn(Object message);
     /** Passes info message to a log 
-     *  @param message */ 
+     *  @param message the message to pass */
     void info(Object message);
     
-    /** Flushes the content of the log to log4j logger 
-     *  @param log 
-     *  @throws LaunchException */
-    void flush(LogInterface log) throws LaunchException;
+    /** Flushes the content of the log to log4j logger
+     *  @param log the {@link LogInterface} instance to pass the logged data into */
+    void flush(LogInterface log);
 }

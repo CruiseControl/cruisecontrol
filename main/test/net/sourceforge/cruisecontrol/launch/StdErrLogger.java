@@ -14,8 +14,7 @@ final class StdErrLogger implements LogInterface {
         System.err.println("INFO: " + message);
     }
     @Override
-    public void flush(LogInterface log) throws LaunchException {
+    public void flush(LogInterface log) {
         throw new IllegalStateException("Flush not supported");
-
     }
 }

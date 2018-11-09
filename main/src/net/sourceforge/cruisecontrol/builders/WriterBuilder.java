@@ -318,7 +318,7 @@ public class WriterBuilder extends Builder {
      *
      * @param properties the built properties as passed to {@link #build(Map, Progress)}
      * @return {@link OutputStream} object
-     * @throws CruiseControlException
+     * @throws CruiseControlException when the output stream cannot be created
      */
     protected OutputStream getOutputStream(final Map<String, String> properties) throws CruiseControlException {
         // Resolve properties in the settings. Fail. if they cannot be resolved
@@ -403,7 +403,11 @@ public class WriterBuilder extends Builder {
     }
 
     /**
-     * Creates action for the given replacement character
+     * Creates action for the given replacement character (to be used when an unmappable character is
+     * found in the text being encoded/decoded).
+     * @param  replaceChar the character to create action for; pass <code>null</code> to fail, and empty
+     *      string to ignore such characters.
+     * @return one of {@link CodingErrorAction}
      */
     protected static CodingErrorAction createAction(String replaceChar) {
         if (replaceChar == null) {
@@ -412,11 +416,14 @@ public class WriterBuilder extends Builder {
         if ("".equals(replaceChar)) {
             return CodingErrorAction.IGNORE;
         } else {
-             return CodingErrorAction.REPLACE;
+            return CodingErrorAction.REPLACE;
         }
     }
     /**
-     * Creates decoder for the given encoding
+     * Creates decoder for the given encoding.
+     * @param  encoding the required encoding
+     * @param  replaceChar the character to replace (see {@link #createAction(String)})
+     * @return new decoder instance
      */
     protected static CharsetDecoder createDecoder(String encoding, String replaceChar) {
         final CharsetDecoder decoder = Charset.forName(encoding).newDecoder();
@@ -431,7 +438,10 @@ public class WriterBuilder extends Builder {
         return decoder;
     }
     /**
-     * Creates encoder for the given encoding
+     * Creates encoder for the given encoding.
+     * @param  encoding the required encoding
+     * @param  replaceChar the character to replace (see {@link #createAction(String)})
+     * @return new encoder instance
      */
     protected static CharsetEncoder createEncoder(String encoding, String replaceChar) {
         final CharsetEncoder encoder = Charset.forName(encoding).newEncoder();
@@ -566,7 +576,7 @@ public class WriterBuilder extends Builder {
         /** Constructor
          *  @param input the source to read data from
          *  @param encoding the encoding of the file
-         *  @throws CruiseControlException
+         *  @throws CruiseControlException on unsupported encoding
          */
         public StreamWithEncoding(final InputStream input, final String encoding) throws CruiseControlException {
             try {

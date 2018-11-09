@@ -38,15 +38,15 @@ package net.sourceforge.cruisecontrol.builders;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.jdom2.CDATA;
+import org.jdom2.Element;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
-
-import org.apache.log4j.Logger;
-import org.jdom2.CDATA;
-import org.jdom2.Element;
 
 /**
  * Exec script class. Script support to execute a command and logs the results.
@@ -67,10 +67,10 @@ public class ExecScript implements Script, StreamConsumer {
     private Element currentElement;
 
     /**
-     * construct the command that we're going to execute.
+     * Constructs the command that we're going to execute.
      *
-     * @return Commandline holding command to be executed
-     * @throws CruiseControlException
+     * @return {@link Commandline} object holding command to be executed
+     * @throws CruiseControlException on failure (command cannot be constructed)
      */
     public Commandline buildCommandline() throws CruiseControlException {
         Commandline cmdLine = new Commandline();

@@ -44,7 +44,7 @@ import net.sourceforge.cruisecontrol.builders.CMakeBuilder.Option;
 public final class CMakeBuilderOptions   {
 
     /**
-     * Creates object into which <code>{@code <option />}</code> tag will be set. Each call
+     * Creates object into which {@code <option />} tag will be set. Each call
      * returns new object which is expected to be set by CC. The attribute is not required.
      *
      * @return new object to configure according to the tag values.

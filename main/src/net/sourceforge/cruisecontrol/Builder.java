@@ -373,10 +373,11 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
             }
         }
 
-        /** Copy the content of EnvConf to this class */
+        /** Copy the content of EnvConf to this class.
+         *  @param env the name-value pair to copy */
         public void copy(final EnvConf env) {
           this.name = env.name;
-          this.value = env.value; // NULL is toDelete() was set
+          this.value = env.value;
         }
 
     } // EnvConf

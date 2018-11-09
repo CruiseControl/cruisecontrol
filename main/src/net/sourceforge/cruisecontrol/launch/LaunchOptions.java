@@ -57,7 +57,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class LaunchOptions implements Options {
+public final class LaunchOptions implements Options {
     /* All keys used for recognizing settings */
     public static final String KEY_CONFIG_FILE = "configfile";
     public static final String KEY_LIBRARY_DIRS = "lib";
@@ -142,7 +142,7 @@ public class LaunchOptions implements Options {
      * @param log the instance of {@link LogInterface} to write information details through
      * @param confOwner the object "owning" the configuration, i.e. it is allowed to call
      *          {@link #setOption(String, String, Object)} method.
-     * @throws LaunchException
+     * @throws LaunchException with details on failure
      */
     public LaunchOptions(final String[] args, LogInterface log, Object confOwner) throws LaunchException {
         final Map<String, Option> temp = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
@@ -394,7 +394,7 @@ public class LaunchOptions implements Options {
      * ignored (not returned).
      *
      * @param key the required option
-     * @param parent
+     * @param parent the directory to look for files into, when not set by absolute path
      * @return the array of File instances pointing to existing directories
      * @throws IllegalArgumentException when the option does not represent file/directory list
      */

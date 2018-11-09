@@ -23,14 +23,15 @@ public interface PipedScript extends Runnable {
      * parent builder.
      */
     interface EnvGlue {
-        /** The same action as implemented by {@link Builder#mergeEnv(OSEnvironment)} */
+        /** The same action as implemented by {@link Builder#mergeEnv(OSEnvironment)}
+         *  @param env the environment to merge into */
         void mergeEnv(final OSEnvironment env);
     }
 
 
     /**
      * Validates the object (checks if all the attributes are set and correct)
-     * @throws CruiseControlException
+     * @throws CruiseControlException with more details when object configuration is not valid
      */
     void validate() throws CruiseControlException;
 
@@ -38,6 +39,9 @@ public interface PipedScript extends Runnable {
      * Object initialisation method - it is supposed to prepare the script for running. It is
      * ensured that the method will only be called when {@link #validate()} will pass and
      * before {@link #run()} is called. However, it can be called repeatedly for the object.
+     *
+     * @throws CruiseControlException with more details when object cannot be initialized or has been
+     *      initialized already.
      */
     void initialize() throws CruiseControlException;
     /**
@@ -45,6 +49,8 @@ public interface PipedScript extends Runnable {
      * memory) after running. It is ensured that the method will only be called after {@link #run()} is
      * done (i.e. {@link #isDone()} reports <code>true</code>), and no other method of the script will
      * be called except the new {@link #initialize()} initialization.
+     *
+     * @throws CruiseControlException with more details when object cannot be finished.
      */
     void finish() throws CruiseControlException;
 
@@ -53,7 +59,6 @@ public interface PipedScript extends Runnable {
      * {@link #initialize()} method. It can be called repeatedly for the object (every time preceded
      * by the call of {@link #initialize()}, however).
      */
-    @Override
     void run();
 
     /**

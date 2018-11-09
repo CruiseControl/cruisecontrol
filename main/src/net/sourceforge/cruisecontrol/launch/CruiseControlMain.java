@@ -68,7 +68,7 @@ public interface CruiseControlMain {
     public Options confFactory(Object owner);
     /**
      * Start CruiseControl
-     * @return
+     * @return <code>true</code> when finished with success, <code>false</code> otherwise.
      */
     public boolean start();
 }

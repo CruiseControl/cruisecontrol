@@ -42,6 +42,10 @@ import  java.io.StringWriter;
 import  java.util.LinkedList;
 import  java.util.Map;
 
+import  org.apache.log4j.Logger;
+import  org.jdom2.Attribute;
+import  org.jdom2.Element;
+
 import  net.sourceforge.cruisecontrol.Builder;
 import  net.sourceforge.cruisecontrol.CruiseControlException;
 import  net.sourceforge.cruisecontrol.Progress;
@@ -53,10 +57,6 @@ import  net.sourceforge.cruisecontrol.util.DateUtil;
 import  net.sourceforge.cruisecontrol.util.IO;
 import  net.sourceforge.cruisecontrol.util.OSEnvironment;
 import  net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import  org.apache.log4j.Logger;
-import  org.jdom2.Attribute;
-import  org.jdom2.Element;
 
 
 /**
@@ -294,7 +294,7 @@ public class CMakeBuilder extends Builder {
   }
 
   /**
-   * Creates object into which <code>{@code <option />}</code> tag will be set. Each call returns new
+   * Creates object into which {@code <option />} tag will be set. Each call returns new
    * object which is expected to be set by CC. The attribute is not required.
    *
    * @return new object to configure according to the tag values.
@@ -306,7 +306,7 @@ public class CMakeBuilder extends Builder {
   /**
    * Adds pre-configured object
    * @param obj the pre-configured object (currently only instance of {@link CMakeBuilderOptions} class)
-   * @throws CruiseControlException
+   * @throws CruiseControlException when an instance of unexpected object type is passed
    */
   @SkipDoc
   public void   add(Object obj) throws CruiseControlException {
@@ -359,16 +359,19 @@ public class CMakeBuilder extends Builder {
       mergeEnv(env);
   }
 
-  /** Creates new instance of ExecBuilder, in this case it is its ExecBuilderCMake override */
+  /** Creates new instance of ExecBuilder, in this case it is its {@link ExecBuilderCMake} override.
+   *  @return new instance */
   protected ExecBuilderCMake createBuilder() {
     return new ExecBuilderCMake();
   }
 
-  /** Returns iterable through builders created by {@link #createBuild()}  */
+  /** Returns iterable through builders created by {@link #createBuild()}
+   *  @return iterable sequence of builders */
   protected Iterable<ExecBuilderCMake> getBuilders() {
     return commands;
   }
-  /** Returns iterable through options created by {@link #createOption()}  */
+  /** Returns iterable through options created by {@link #createOption()}
+   *  @return iterable sequence of CMake options */
   protected Iterable<Option> getOptions() {
     return options;
   }
@@ -436,28 +439,33 @@ public class CMakeBuilder extends Builder {
    */
   protected class ExecBuilderCMake extends ExecBuilder {
 
-      /** Method adding single option to the list of arguments for CMake */
+      /** Method adding single option to the list of arguments for CMake
+       *  @param opt the option to add */
       @SkipDoc
       public void addOption(Option opt) {
         addArg(opt.toString());
       }
 
-      /** Method the last path argument for CMake, it is either <code>path-to-source</code> or
-       *  <code>path-to-existing-build</code> */
+      /** Method to set the last path argument for CMake, it is either <code>path-to-source</code> or
+       *  <code>path-to-existing-build</code>.
+       *  @param path the path  */
       @SkipDoc
       public void addPath(File path) {
         addArg(path.getAbsolutePath());
       }
 
       /** Overrides {@link #mergeEnv(OSEnvironment)} method to call parent's
-       *  {@link CMakeBuilder#mergeEnv(OSEnvironment)} first, and its own implementation then */
+       *  {@link CMakeBuilder#mergeEnv(OSEnvironment)} first, and its own implementation then
+       *  @param env the environment to merge into */
       @Override
       public void mergeEnv(final OSEnvironment env) {
           mergeEnv_wrap(env);
           super.mergeEnv(env);
       }
 
-      /** Adds single string option */
+      /** Adds single string option to the list of options, separated by space, and calls
+       *  {@link ExecBuilder#setArgs(String)} to set the current argument to parent
+       *  @param arg the command line option to add. */
       protected void addArg(final String arg) {
         final String args = super.getArgs();
         super.setArgs((args != null && args.length() > 0 ? args + " " : "") + arg);
