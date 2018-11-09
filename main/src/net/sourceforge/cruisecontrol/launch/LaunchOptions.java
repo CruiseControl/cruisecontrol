@@ -42,11 +42,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -266,16 +264,7 @@ public final class LaunchOptions implements Options {
 
     @Override
     public Iterable<String> allOptionKeys() {
-        final Set<String> keys = new HashSet<String>(options.size() + DEFAULT_OPTIONS.length);
-
-        // Join all the option sources
-        keys.addAll(options.keySet());
-        for (Option o : DEFAULT_OPTIONS) {
-            keys.add(o.key);
-        }
-        keys.remove(KEY_IGNORE);
-
-        return keys;
+        return options.keySet();
     }
 
     /**
@@ -549,13 +538,14 @@ public final class LaunchOptions implements Options {
      * @throws LaunchException
      */
     private void parseXmlConfig(final Map<String, Option> opts, final Option xmlPath) throws LaunchException {
+        final File parent = new File("./");
 
         // The path is NULL, just leave
         if (xmlPath == null || "".equals(xmlPath.val)) {
             return;
         }
 
-        File path = findFile(xmlPath.val, new File("./"));
+        File path = findFile(xmlPath.val, parent);
         // Not in the current
         if (path == null) {
             path = findFile(xmlPath.val, USER_HOMEDIR);
@@ -567,11 +557,12 @@ public final class LaunchOptions implements Options {
         }
 
         Element xmlConfig;
+        DocumentBuilder builder;
         // Read the config. Use standard Java's XML tools to avoid the dependency ion an external
         // XML handling package (although net.sourceforge.cruisecontrol.util.Util class contains
         // more advanced CML parsers. Could be nice to join them ...)
         try {
-            final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             xmlConfig = builder.parse(path).getDocumentElement();
         } catch (Exception e) {
             throw new LaunchException("Failed to read XML file:" + path.getAbsolutePath(), e);
@@ -585,11 +576,28 @@ public final class LaunchOptions implements Options {
                 throw new LaunchException("No launcher configuration found in the XML config");
             }
 
-            // Remove the option from the <launch> element since the config is this file
-            removeChild(launch, KEY_CONFIG_FILE); // Remove it in case that it will be set
-            // Set the path to the file and continue with parsing the launcher element
-            setOption(opts, KEY_CONFIG_FILE, path.getAbsolutePath());
-            xmlConfig = launch;
+            // If the <launch>...</launch> contains only text, it must be the reference to the launch.xml file
+            final String fname = hasTextOnly(launch);
+            if (fname != null) {
+                // The text content on <launch>...</launch> node
+                final File lfile = findFile(fname, parent); 
+                if (path.equals(lfile)) {
+                    throw new LaunchException("Recursive use of: " + lfile.getAbsolutePath() + " from: " 
+                            + path.getAbsolutePath());
+                }
+                // Call recursively with the file
+                parseXmlConfig(opts, new Option(KEY_CONFIG_FILE, lfile.getAbsolutePath(), File.class));
+                // Reset the option to this file (it is the main CC confing just containing <launch> node)
+                setOption(opts, KEY_CONFIG_FILE, path.getAbsolutePath());
+                return;
+            // The <launch></launch> contains embedded elements
+            } else {
+                // Remove the option from the <launch> element since the config is this file
+                removeChild(launch, KEY_CONFIG_FILE); // Remove it in case that it will be set
+                // Set the path to the file and continue with parsing the launcher element
+                setOption(opts, KEY_CONFIG_FILE, path.getAbsolutePath());
+                xmlConfig = launch;
+            }
         }
 
         // Parse options from <launcher>...</launcher> element
@@ -632,6 +640,17 @@ public final class LaunchOptions implements Options {
             nodes[i] = list.item(i);
         }
         return nodes;
+    }
+    private static String hasTextOnly(final Element xmlNode) {
+        final NodeList nodes = xmlNode.getChildNodes();
+        if (nodes.getLength() != 1) {
+            return null;
+        }
+        final Node node = nodes.item(0);
+        if (node.getNodeType() != Node.TEXT_NODE) {
+            return null;
+        }
+        return node.getTextContent().trim();
     }
 
     /**

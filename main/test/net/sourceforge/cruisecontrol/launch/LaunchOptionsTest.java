@@ -198,10 +198,11 @@ public class LaunchOptionsTest extends TestCase {
      *
      *  @throws Exception
      */
-    public void testLaunchEmbedded() throws Exception {
+    public void testLaunchEmbedded1() throws Exception {
         // Configuration file, referenced to an external file
         final Map<String, String> opts = new HashMap<String, String>();
         opts.put(LaunchOptions.KEY_CONFIG_FILE,  "/home/CC/mainconfig.xml");  // should be ignored, even if presented!
+        opts.put(LaunchOptions.KEY_PROJ_DIR, "/tmp");
         final Element launch = makeLauchXML(opts);
         final Element main = makeConfigXML(launch); // embeds <launch> to the main config
         final File xml = storeXML(main, filesToDelete.add("cruisecontrol.xml"));
@@ -214,6 +215,49 @@ public class LaunchOptionsTest extends TestCase {
 
         // Must return path to the main configuration file!
         assertEquals(xml.getAbsolutePath(), config.getOptionRaw(LaunchOptions.KEY_CONFIG_FILE));
+        assertEquals("/tmp", config.getOptionRaw(LaunchOptions.KEY_PROJ_DIR));
+    }
+
+    /** Tests if correct path to main config file is returned when the <launch>...</launch> configuration
+     *  is embedded in the main <cruisecontrol>...</cruisecontrol> configuration.
+     *
+     *  @throws Exception
+     */
+    public void testLaunchEmbedded2() throws Exception {
+        final File main = filesToDelete.add("mainconfig", ".xml");
+
+        // Launch configuration file, contains reference to main (swhich should be ignored here)
+        final Map<String, String> opts = new HashMap<String, String>();
+        opts.put(LaunchOptions.KEY_CONFIG_FILE,  main.getAbsolutePath());
+        opts.put(LaunchOptions.KEY_PROJ_DIR, "/tmp");
+        final File launch = storeXML(makeLauchXML(opts), filesToDelete.add("launch", ".xml"));
+
+        // Main configuration file, contains <launch>filename</launch>
+        final Element lcfg = new Element("launch");
+        lcfg.setText(launch.getAbsolutePath());
+        storeXML(makeConfigXML(lcfg), main);
+
+        // Create the object
+        final LaunchOptions config = new LaunchOptions(new String[] {
+                "-"+LaunchOptions.KEY_CONFIG_FILE, main.getAbsolutePath()}, log, null);
+
+        // Must return path to the main configuration file!
+        assertEquals(main.getAbsolutePath(), config.getOptionRaw(LaunchOptions.KEY_CONFIG_FILE));
+        assertEquals("/tmp", config.getOptionRaw(LaunchOptions.KEY_PROJ_DIR));
+
+
+        // Try the case when the main config will contain reference to itself in <launch>
+        lcfg.setText(main.getAbsolutePath()); // Reference to the main again!
+        storeXML(makeConfigXML(lcfg), main);
+
+        try {
+            new LaunchOptions(new String[] {"-"+LaunchOptions.KEY_CONFIG_FILE, main.getAbsolutePath()}, log, null);
+            fail();
+
+        } catch (LaunchException e) {
+            assertEquals("Recursive use of: " + main.getAbsolutePath() + " from: " + main.getAbsolutePath(),
+                         e.getMessage());
+        }
     }
 
     /** Tests if default path to main config file is returned when the <launch>...</launch>
