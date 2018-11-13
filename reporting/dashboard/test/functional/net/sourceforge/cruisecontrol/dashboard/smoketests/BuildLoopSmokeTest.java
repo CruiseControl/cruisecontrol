@@ -42,6 +42,7 @@ import java.util.List;
 import net.sourceforge.cruisecontrol.BuildLoopInformationBuilder;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.CruiseControlOptions;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.ProjectConfig;
@@ -53,6 +54,18 @@ import net.sourceforge.cruisecontrol.report.BuildLoopStatusReportTask;
 import org.apache.commons.httpclient.HttpClient;
 
 public class BuildLoopSmokeTest extends BaseFunctionalTest {
+
+    @Override
+    public final void setUp() throws Exception {
+        super.setUp();
+        CruiseControlOptions.getInstance(this);
+    }
+
+    @Override
+    public final void tearDown() throws Exception {
+        super.tearDown();
+        CruiseControlOptions.delInstance(this);
+    }
 
     public void testDashboardShouldReceiveSameBuildInformationBuildLoopSent() throws Exception {
         final String status = "now building since 20031212152235";
@@ -89,6 +102,7 @@ public class BuildLoopSmokeTest extends BaseFunctionalTest {
             this.status = status;
         }
 
+        @Override
         public List<ProjectInterface> getProjects() {
             ProjectConfig p1 = new ProjectConfig() {
                 @Override

@@ -67,7 +67,8 @@ public abstract class BaseFunctionalTest extends TestCase {
 
     protected WebTester tester;
 
-    public final void setUp() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         tester = new WebTester();
         tester.setScriptingEnabled(false);
         tester.getTestContext().setBaseUrl(BASE_URL);
