@@ -92,6 +92,7 @@ public class CruiseControlConfig {
     private Map<String, List> templatePluginProperties = new HashMap<String, List>();
     private PluginRegistry rootPlugins = PluginRegistry.createRegistry();
     private final Map<String, ProjectInterface> projects = new LinkedHashMap<String, ProjectInterface>();
+    private final Set<String> projfails = new HashSet<String>(); // Value get by #getFailedNames()
     // for test purposes only
     private final Map<String, PluginRegistry> projectPluginRegistries = new TreeMap<String, PluginRegistry>();
 
@@ -543,15 +544,21 @@ public class CruiseControlConfig {
 
         final ProjectInterface project;
         try {
+
             project = (ProjectInterface) projectHelper.configurePlugin(projectElement, false);
+            project.validate();
+
         } catch (CruiseControlException e) {
-            throw new CruiseControlException("error configuring project " + projectName, e);
+            projfails.add(projectName);
+            LOG.error("Failed to handle " + projectName + " project in " + projectElement.getDocument().getBaseURI()
+                    + ". Skipping the project!", e);
+            return;
+            //throw new CruiseControlException("error configuring project " + projectName, e);
         }
 
         // Why call method that is a no-op, and exists only for gendoc purposes?
         //add(project);
 
-        project.validate();
         LOG.debug("**************** end configuring project " + projectName + " *******************");
 
         this.projects.put(projectName, project);
@@ -592,6 +599,11 @@ public class CruiseControlConfig {
 
     public Set<String> getProjectNames() {
         return Collections.unmodifiableSet(this.projects.keySet());
+    }
+
+    // Return the names of projects not correctly configured (and thus not activated)
+    public Set<String> getFailedNames() {
+        return Collections.unmodifiableSet(this.projfails);
     }
 
     public PluginRegistry getRootPlugins() {

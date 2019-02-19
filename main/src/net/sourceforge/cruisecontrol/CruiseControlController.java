@@ -150,6 +150,9 @@ public class CruiseControlController {
     public List<ProjectInterface> getProjects() {
         return Collections.unmodifiableList(projects);
     }
+    public Set<String> getProjfails() {
+        return configManager.getCruiseControlConfig().getFailedNames();
+    }
 
     private List<ProjectInterface> getAllProjects(XMLConfigManager configManager) {
         final Set<String> projectNames = configManager.getCruiseControlConfig().getProjectNames();

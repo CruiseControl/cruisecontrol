@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -71,24 +72,9 @@ public class CruiseControlConfigTest extends TestCase {
 
     private static final int ONE_SECOND = 1000;
 
-    @Override
-    protected void setUp() throws Exception {
-        // Fill properties to be tested
-        CruiseControlOptions settings = CruiseControlOptions.getInstance(this);
-        settings.setOption("user", "value_for_user", this);
-        settings.setOption("ccname", "value_for_ccname", this);
-
-        URL url;
-        url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
-        propertiesFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
-
-        // Set up a CruiseControl config file for testing
-        url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig.xml");
-        configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
-        classpathDirectory = configFile.getParentFile();
-
-        Element ccElement = Util.loadRootElement(configFile);
-        Element testpropertiesdir = new Element("property");
+    private Element getProjectConfig() throws CruiseControlException {
+        final Element ccElement = Util.loadRootElement(configFile);
+        final Element testpropertiesdir = new Element("property");
         testpropertiesdir.setAttribute("name", "test.properties.dir");
         testpropertiesdir.setAttribute("value", propertiesFile.getParentFile().getAbsolutePath());
         ccElement.addContent(0, testpropertiesdir);
@@ -105,6 +91,26 @@ public class CruiseControlConfigTest extends TestCase {
         filesToDelete.add(new File(TestUtil.getTargetDir(), "mylogs"));
         filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
 
+        return ccElement;
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        // Fill properties to be tested
+        CruiseControlOptions settings = CruiseControlOptions.getInstance(this);
+        settings.setOption("user", "value_for_user", this);
+        settings.setOption("ccname", "value_for_ccname", this);
+
+        URL url;
+        url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
+        propertiesFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
+
+        // Set up a CruiseControl config file for testing
+        url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig.xml");
+        configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
+        classpathDirectory = configFile.getParentFile();
+
+        Element ccElement = getProjectConfig();
         config = new CruiseControlConfig(ccElement);
     }
 
@@ -613,4 +619,49 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(2, loggers.length);
     }
 
+    // Tests CruiseControlConfig#parse() on file defining multiple projects with one of them being
+    // configured uncorrectly. That bad must be stopped, but the others must be loaded correctly.
+    public void testParse_badProject() throws Exception {
+        // Check, if the other projects exist
+        try {
+            assertNotNull(config.findProject("project1"));
+            assertNotNull(config.findProject("project2"));
+        } catch(CruiseControlException e) {
+            fail("No expected projects defined");
+        }
+
+        // Invalid project definition
+        final String badName = "bad_project";
+        final String badProject = "<project name='" + badName + "'>"
+            + "  <schedule/>" // <-- schedule element must have at least one nested builder element
+            + "</project>";
+
+        // Add it to the files with other correct projects
+        final Element ccElement = getProjectConfig();
+        ccElement.addContent(Util.loadRootElement(new ByteArrayInputStream(badProject.getBytes())).detach());
+
+        // Parse the project - must not fail
+        config = new CruiseControlConfig(ccElement);
+
+        // Check, if the other projects exist
+        try {
+            assertNotNull(config.findProject("project1"));
+            assertNotNull(config.findProject("project2"));
+        } catch(CruiseControlException e) {
+            fail("Bad project disabled all the other projects");
+        }
+        try {
+            config.findProject(badName);
+            fail("Bad project must not be defined!");
+        } catch(CruiseControlException e) {
+            assertEquals(e.getMessage(), "No project named '" + badName + "'");
+        }
+
+        /*
+          <plugin name='mock.project.bad'
+          classname='net.sourceforge.cruisecontrol.MockProjectInterface' invalid="True">
+  </plugin>*/
+
+
+    }
 }

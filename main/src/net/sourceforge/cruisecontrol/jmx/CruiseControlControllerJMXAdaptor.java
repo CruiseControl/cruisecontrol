@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
@@ -126,7 +127,7 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
             } finally {
                 theConfigFileReader.close();
             }
-            
+
         } catch (FileNotFoundException fne) {
 
             LOG.error("Configuration file not found", fne);
@@ -184,8 +185,17 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
 
         InputStream in = new ByteArrayInputStream(contents.getBytes());
         Element config = Util.loadRootElement(in);
+        Set<String> f = new CruiseControlConfig(config, controller).getFailedNames();
 
-        new CruiseControlConfig(config, controller);
+        if (!f.isEmpty()) {
+            final StringBuilder names = new StringBuilder("Invalid projects found: ");
+            for (String n : f) {
+                names.append(n);
+                names.append(',');
+            }
+            names.setLength(names.length() - 1); // Remove the last comma
+            throw new CruiseControlException(names.toString());
+        }
     }
 
     public void setConfigFileName(String fileName) throws InvalidAttributeValueException {

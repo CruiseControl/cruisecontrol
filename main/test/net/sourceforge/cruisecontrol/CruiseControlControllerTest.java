@@ -41,6 +41,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.config.XMLConfigManager;
@@ -411,16 +412,30 @@ public final class CruiseControlControllerTest extends TestCase {
         configOut.write("    <schedule><ant/></schedule>\n");
         configOut.write("    <log>\n");
         configOut.write("      <merge/>\n");
-         configOut.write("    </log>\n");
+        configOut.write("    </log>\n");
         configOut.write("  </project>\n");
         writeFooterAndClose(configOut);
 
+        // There is no exception thrown when a project configurarion fails. However, the project will not
+        // be listed among the projects defined. Note that this test tests functionality too below ...
+        //try {
+        //    ccController.setConfigFile(configFile);
+        //    fail("BuildLogger.validate() was not called");
+        //} catch (CruiseControlException ccex) {
+        //    assertEquals("one of file or dir are required attributes",
+        //            ccex.getMessage());
+        //}
         try {
             ccController.setConfigFile(configFile);
-            fail("BuildLogger.validate() was not called");
+            final List<ProjectInterface> projs = ccController.getProjects();
+            assertEquals(0, projs.size());
+
+            final Set<String> fails = ccController.getProjfails();
+            assertEquals(1, fails.size());
+            assertTrue(fails.contains("buildlogger"));
+
         } catch (CruiseControlException ccex) {
-            assertEquals("one of file or dir are required attributes",
-                    ccex.getMessage());
+            fail("Unexpected failure");
         }
     }
 
