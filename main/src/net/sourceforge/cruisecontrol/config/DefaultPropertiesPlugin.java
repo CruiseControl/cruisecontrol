@@ -145,11 +145,13 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
   public void loadProperties(final Map<String, String> props, final boolean failIfMissing)
           throws CruiseControlException {
 
+    // Resolve file name, if there are properties missing
+    final String fname = Util.parsePropertiesInString(props, this.file, true);
     final boolean toUpperValue = "true".equals(toupper);
-    if (file != null && file.trim().length() > 0) {
-        // TODO FIXME add exists check.
+
+    if (fname != null && fname.trim().length() > 0) {
         try {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(fileResolver.getInputStream(file)));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(fileResolver.getInputStream(fname)));
             try {
                 // Read the theFile line by line, expanding macros
                 // as we go. We must do this manually to preserve the
@@ -174,7 +176,7 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
                 reader.close();
             }
         } catch (IOException e) {
-            throw new CruiseControlException("Could not load properties from theFile \"" + file
+            throw new CruiseControlException("Could not load properties from the File \"" + fname
                     + "\".", e);
         }
     } else if (environment != null) {
