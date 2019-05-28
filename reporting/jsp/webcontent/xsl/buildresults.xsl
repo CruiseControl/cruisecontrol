@@ -43,6 +43,7 @@
   <xsl:import href="pmd.xsl"/>
   <xsl:import href="macker.xsl"/>
   <xsl:import href="errors.xsl"/>
+  <xsl:import href="info.xsl"/>
   <xsl:import href="compile.xsl"/>
   <xsl:import href="javadoc.xsl"/>
   <xsl:import href="unittests.xsl"/>
@@ -62,6 +63,7 @@
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="pmd"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="macker"/></p>
     <p><xsl:apply-templates select="$cruisecontrol.list" mode="errors"/></p>
+    <p><xsl:apply-templates select="$cruisecontrol.list" mode="info"/></p>
     <!--
       for traditional cc display of only compile errors and warnings
       comment out mode="errors" and uncomment mode="compile" and mode="javadoc"
