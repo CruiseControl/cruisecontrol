@@ -61,6 +61,7 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
    private String name;
    private String value;
    private String toupper;
+   private String encoding = "UTF-8";
    private FileResolver fileResolver; // used to get file to read properties from
 
 
@@ -107,6 +108,14 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
     this.file = file;
   }
 
+  @Description("Used in conjunction with file. It sets the encoding the properties file is "
+      + "stored in.")
+  @Optional
+  @Default("UTF-8")
+  public void setEncoding(String encoding) {
+    this.encoding = encoding;
+  }
+
   @Description("The value of the property. This may contain any previously defined properties.")
   @Optional("Must be set if name was set.")
   public void setValue(String value) {
@@ -151,7 +160,8 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
 
     if (fname != null && fname.trim().length() > 0) {
         try {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(fileResolver.getInputStream(fname)));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(fileResolver.getInputStream(fname),
+                this.encoding));
             try {
                 // Read the theFile line by line, expanding macros
                 // as we go. We must do this manually to preserve the

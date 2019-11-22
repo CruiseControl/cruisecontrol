@@ -52,6 +52,10 @@ ProjectStatus
 ----------------------
 * New SourceControl module designed as the combination of <buildstatus/> (i.e. triggers when the depending project is built with success) and <veto /> (cancels the build when the depending project has modifications not built yet)
 
+DefaultPropertiesPlugin
+----------------------
+* Allow to define encoding of properties file (UTF-8 is hard-coded default). It fixes wrong data when e.g. UTF-8 files are read but the machine locale is set to another encoding
+
 
 Dashboard
 ======================
