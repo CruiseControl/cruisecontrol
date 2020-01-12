@@ -30,7 +30,7 @@
 
         <javac srcdir="${src}" destdir="${classes}" classpathref="compile.path" debug="true" deprecation="true"
                fork="true"
-               source="1.4" target="1.4" compiler="javac1.4"
+               source="6" target="1.6" compiler="javac1.4"
                includeAntRuntime="false"
                 >
             <compilerarg value="-Xlint:unchecked"/>
@@ -39,7 +39,7 @@
         <mkdir dir="${test.classes}"/>
         <javac srcdir="${test}" destdir="${test.classes}" classpathref="test.unit.compile.path" debug="true" deprecation="true" 
                fork="true"
-               source="1.4" target="1.4" compiler="javac1.4"
+               source="6" target="1.6" compiler="javac1.4"
                includeAntRuntime="false"
                 >
             <compilerarg value="-Xlint:unchecked"/>
