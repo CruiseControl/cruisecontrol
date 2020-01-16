@@ -71,7 +71,7 @@ import org.jdom2.Element;
  * MetaWeblog API or the LiveJournal API.
  * </p>
  * <p>
- * Here's a sample of the publisher element to put into your <tt>config.xml</tt>:
+ * Here's a sample of the publisher element to put into your <code>config.xml</code>:
  * </p>
  *
  * <pre>
@@ -232,7 +232,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * The API used for posting to your blog. Currently, acceptable values are
-     * <tt>blogger</tt>,<tt>metaweblog</tt> and <tt>livejournal</tt>.
+     * <code>blogger</code>,<code>metaweblog</code> and <code>livejournal</code>.
      */
     public void setApi(final String api) {
         this.api = api;
@@ -248,8 +248,8 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * The URL where your blog's remote API is running at. For example, the
-     * value could look like <tt>http://www.yoursite.com/blog/xmlrpc</tt> or
-     * <tt>http://www.livejournal.com/interface/xmlrpc</tt>.
+     * value could look like <code>http://www.yoursite.com/blog/xmlrpc</code> or
+     * <code>http://www.livejournal.com/interface/xmlrpc</code>.
      */
     public void setBlogUrl(final String blogUrl) {
         this.blogUrl = blogUrl;
@@ -279,7 +279,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * The prefix to be used before the title of the blog entry. If
-     * <tt>null</tt>, no prefix will be used.
+     * <code>null</code>, no prefix will be used.
      */
     public void setSubjectPrefix(final String prefix) {
         this.subjectPrefix = prefix;
@@ -287,7 +287,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * The base build results URL where your CruiseControl reporting application
-     * is running. For example, <tt>http://buildserver:8080/cc/myproject</tt>.
+     * is running. For example, <code>http://buildserver:8080/cc/myproject</code>.
      */
     public void setBuildResultsURL(final String url) {
         this.buildResultsURL = url;
@@ -295,7 +295,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * The rule for posting a blog entry for successful builds. Accepted values
-     * are <tt>never</tt>,<tt>always</tt> and <tt>fixes</tt>.
+     * are <code>never</code>,<code>always</code> and <code>fixes</code>.
      */
     public void setReportSuccess(final String reportSuccess) {
         this.reportSuccess = reportSuccess;
@@ -303,7 +303,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * The rule for posting a blog entry for each subsequent failed build.
-     * Accepted values are <tt>true</tt> and <tt>false</tt>.
+     * Accepted values are <code>true</code> and <code>false</code>.
      */
     public void setSpamWhileBroken(final boolean spamWhileBroken) {
         this.spamWhileBroken = spamWhileBroken;
@@ -352,7 +352,7 @@ public class WeblogPublisher implements Publisher {
     }
 
     /**
-     * A <tt>BloggingApi</tt> implementation for the Blogger API.
+     * A <code>BloggingApi</code> implementation for the Blogger API.
      *
      * @author Lasse Koskela
      */
@@ -386,7 +386,7 @@ public class WeblogPublisher implements Publisher {
     }
 
     /**
-     * A <tt>BloggingApi</tt> implementation for the MetaWeblogAPI.
+     * A <code>BloggingApi</code> implementation for the MetaWeblogAPI.
      *
      * @author Lasse Koskela
      */
@@ -429,7 +429,7 @@ public class WeblogPublisher implements Publisher {
     }
 
     /**
-     * A <tt>BloggingApi</tt> implementation for the LiveJournal API.
+     * A <code>BloggingApi</code> implementation for the LiveJournal API.
      *
      * @author Lasse Koskela
      */
@@ -483,13 +483,13 @@ public class WeblogPublisher implements Publisher {
     }
 
     /**
-     * Selects a <tt>BloggingApi</tt> implementation based on a user-friendly
+     * Selects a <code>BloggingApi</code> implementation based on a user-friendly
      * name.
      *
      * @param apiName
-     *            The name of the blogging API to use. One of <tt>blogger</tt>,
-     *            <tt>metaweblog</tt> or <tt>livejournal</tt>.
-     * @return The <tt>BloggingApi</tt> implementation or <tt>null</tt> if
+     *            The name of the blogging API to use. One of <code>blogger</code>,
+     *            <code>metaweblog</code> or <code>livejournal</code>.
+     * @return The <code>BloggingApi</code> implementation or <code>null</code> if
      *         no matching implementation was found.
      * @throws CruiseControlException if something breaks
      */

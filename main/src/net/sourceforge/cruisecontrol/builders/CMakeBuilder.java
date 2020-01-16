@@ -62,7 +62,7 @@ import  net.sourceforge.cruisecontrol.util.ValidationHelper;
 /**
  * Builder class for CMake C/C++ build system.
  *
- * Executes <tt>cmake</tt> command with a given parameters, followed by the user-defined sequence
+ * Executes <code>cmake</code> command with a given parameters, followed by the user-defined sequence
  * of commands. Builder fails if any of the commands fail.
  *
  * Although there is possibility to use {@link CompositeBuilder}, this class has the
@@ -102,7 +102,7 @@ import  net.sourceforge.cruisecontrol.util.ValidationHelper;
  * <li> CMake can be pre-configured using {@code <plugin />} framework
  * <li> the build directory is automatically created if not existing.
  * <li> each build can start in empty build directory, see {@link #setCleanBuild(boolean)}.
- * <li> the output of <tt>make test</tt> can be integrated to the output of CC as it is in case of
+ * <li> the output of <code>make test</code> can be integrated to the output of CC as it is in case of
  *      ANT builder (<b>not finished yet!</b>)
  * </ul>
  *
@@ -199,7 +199,8 @@ public class CMakeBuilder extends Builder {
 
         /* start the command and store its output into the overall logElement */
         cmmndLogElement = c.build(buildProperties, progressIn);
-        buildLogElement.addContent(cmmndLogElement);
+        buildLogElement.addContent(cmmndLogElement.removeContent());
+
         /* if the result contains "error" attribute, I suppose it failed. Copy the error to the top-level
            to signalize CC that something went wrong, and the build failed */
         cmndErrAttrib = cmmndLogElement.getAttribute("error");
@@ -227,10 +228,10 @@ public class CMakeBuilder extends Builder {
   }
 
   /**
-   * Sets the directory where the top-level <tt>CMakeLists.txt</tt> is located. The attribute
+   * Sets the directory where the top-level <code>CMakeLists.txt</code> is located. The attribute
    * is required.
    *
-   * @param path the path to the top-level <tt>CMakeLists.txt</tt> file.
+   * @param path the path to the top-level <code>CMakeLists.txt</code> file.
    */
   @Required
   public void setSrcRoot(String path) {
@@ -243,7 +244,7 @@ public class CMakeBuilder extends Builder {
       return this.srcRoot;
   }
   /**
-   * Sets the build directory into which <tt>cmake</tt> creates <tt>Makefile</tt>, and into which the
+   * Sets the build directory into which <code>cmake</code> creates <code>Makefile</code>, and into which the
    * project is built. The attribute is required.
    *
    * @param path the path to the build directory.
@@ -338,7 +339,7 @@ public class CMakeBuilder extends Builder {
 
   /**
    * Creates object representing the command run after the CMake is configured; such commands are for example
-   * <tt>make, make install</tt> and so on. Since the object is {@link ExecBuilder}, any command can be defined and
+   * <code>make, make install</code> and so on. Since the object is {@link ExecBuilder}, any command can be defined and
    * all its attributes can be set.
    *
    * Attributes not set for the command are inherited from CMake configuration.
@@ -393,7 +394,7 @@ public class CMakeBuilder extends Builder {
   /** The maximum time of build run [in sec.]. */
   private long timeOut = 0;
 
-  /** The list of <tt>-D</tt> defines passed to <tt>cmake</tt> command. */
+  /** The list of <code>-D</code> defines passed to <code>cmake</code> command. */
   private final LinkedList<Option>  options   = new LinkedList<Option>();
   /** The list of commands as they are executed one after another. */
   private final LinkedList<ExecBuilderCMake> commands  = new LinkedList<ExecBuilderCMake>();
@@ -405,7 +406,7 @@ public class CMakeBuilder extends Builder {
   /* ----------- NESTED CLASSES ----------- */
 
   /**
-   * Class for the CMake <tt>option[=value]</tt> options configuration:
+   * Class for the CMake <code>option[=value]</code> options configuration:
    * <pre>
    * {@code
    *     <option value="OPTION_NAME[=OPTION_VALUE]"/>
