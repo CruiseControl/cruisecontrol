@@ -50,7 +50,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ResolverUser;
 import java.util.Map;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
 @DescriptionFile
@@ -129,7 +128,7 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
   public void setToupper(String toupper) {
     this.toupper = toupper;
   }
-  
+
   /**
    * Called after the configuration is read to make sure that all the mandatory parameters were specified..
    * @throws CruiseControlException if there was a configuration error.
@@ -145,6 +144,8 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
 
       if (file != null && file.trim().length() > 0) {
           // TODO FIXME add exists check.
+
+        ValidationHelper.assertEncoding(this.encoding, getClass());
       }
       if (name != null && value == null) {
         ValidationHelper.fail("name and value must be set simultaneoulsy.");
@@ -153,13 +154,13 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
 
   public void loadProperties(final Map<String, String> props, final boolean failIfMissing)
           throws CruiseControlException {
-
-    // Resolve file name, if there are properties missing
-    final String fname = Util.parsePropertiesInString(props, this.file, true);
     final boolean toUpperValue = "true".equals(toupper);
 
-    if (fname != null && fname.trim().length() > 0) {
+    if (this.file != null && this.file.trim().length() > 0) {
+
         try {
+            // Resolve file name, if there are properties missing
+            final String fname = Util.parsePropertiesInString(props, this.file, true);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(fileResolver.getInputStream(fname),
                 this.encoding));
             try {
@@ -185,8 +186,8 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
             } finally {
                 reader.close();
             }
-        } catch (IOException e) {
-            throw new CruiseControlException("Could not load properties from the File \"" + fname
+        } catch (Exception e) {
+            throw new CruiseControlException("Could not load properties from the File \"" + this.file
                     + "\".", e);
         }
     } else if (environment != null) {
