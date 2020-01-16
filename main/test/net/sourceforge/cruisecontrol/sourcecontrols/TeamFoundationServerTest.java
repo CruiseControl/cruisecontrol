@@ -3,6 +3,8 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,12 +24,12 @@ import net.sourceforge.cruisecontrol.Modification;
  */
 public class TeamFoundationServerTest extends TestCase {
 
-    private TimeZone originalTimeZone;
+    private final TimeZone originalTimeZone = TimeZone.getDefault();
+    private final Locale originalLocal = Locale.getDefault();
+    private final Date minDate = (new GregorianCalendar(1976, 3, 10)).getTime();;
+
     private TeamFoundationServer tfs;
 
-    private Locale originalLocal;
-    
-    private Date minDate;
     
     private static final String CHANGESET_DATA = "Changeset: 1645\n"
             + "User: martin\n"
@@ -78,14 +80,9 @@ public class TeamFoundationServerTest extends TestCase {
      * @see junit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
-        originalTimeZone = TimeZone.getDefault();
-        originalLocal = Locale.getDefault();
         tfs = new TeamFoundationServer();
         tfs.setServer("http://tfsserver:8080");
         tfs.setProjectPath("$/TeamProjectName/path");
-        
-        // Set up a default date to be used for the lastBuild date when
-        minDate = (new GregorianCalendar(1976, 3, 10)).getTime();
     }
 
     /*
@@ -97,7 +94,6 @@ public class TeamFoundationServerTest extends TestCase {
         TimeZone.setDefault(originalTimeZone);
         Locale.setDefault(originalLocal);
         tfs = null;
-        originalTimeZone = null;
     }
 
     /**
@@ -212,7 +208,7 @@ public class TeamFoundationServerTest extends TestCase {
     }
 
     public void testParseChangesetGetItems() throws ParseException {
-        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(CHANGESET_DATA_MULTI_ITEM, minDate);
+        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(CHANGESET_DATA_MULTI_ITEM, minDate, null);
 
         assertNotNull(list);
         assertEquals(3, list.size());
@@ -234,7 +230,7 @@ public class TeamFoundationServerTest extends TestCase {
     }
 
     public void testParseTeampriseChangeset() throws ParseException {
-        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(CHANGESET_DATA_TEAMPRISE, minDate);
+        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(CHANGESET_DATA_TEAMPRISE, minDate, null);
 
         assertNotNull(list);
         assertEquals(3, list.size());
@@ -254,7 +250,7 @@ public class TeamFoundationServerTest extends TestCase {
 
         Reader reader = new StringReader(tfOutput);
         try {
-            TeamFoundationServer.TFHistoryParser.parse(reader, minDate);
+            TeamFoundationServer.TFHistoryParser.parse(reader, minDate, null);
         } catch (ParseException e) {
             assertEquals("Parse error.", e.getMessage().substring(0, "Parse error.".length()));
             return;
@@ -266,7 +262,7 @@ public class TeamFoundationServerTest extends TestCase {
         String tfOutput = "No history entries were found for the item and version combination specified." + "\r\n";
 
         Reader reader = new StringReader(tfOutput);
-        List list = TeamFoundationServer.TFHistoryParser.parse(reader, minDate);
+        List list = TeamFoundationServer.TFHistoryParser.parse(reader, minDate, null);
 
         assertNotNull(list);
         assertEquals(0, list.size());
@@ -289,7 +285,7 @@ public class TeamFoundationServerTest extends TestCase {
         Date lastBuildDate = (new GregorianCalendar(2007, 1, 1)).getTime();
             
         Reader reader = new StringReader(tfOutput);
-        List list = TeamFoundationServer.TFHistoryParser.parse(reader, lastBuildDate);
+        List list = TeamFoundationServer.TFHistoryParser.parse(reader, lastBuildDate, null);
 
         assertNotNull(list);
         assertEquals(0, list.size());
@@ -321,7 +317,7 @@ public class TeamFoundationServerTest extends TestCase {
                 + "Items:\r\n" + "  add $/TestProject7\r\n" + "\r\n";
 
         Reader reader = new StringReader(tfOutput);
-        List list = TeamFoundationServer.TFHistoryParser.parse(reader, minDate);
+        List list = TeamFoundationServer.TFHistoryParser.parse(reader, minDate, null);
 
         assertNotNull(list);
         assertEquals(11, list.size());
@@ -329,18 +325,26 @@ public class TeamFoundationServerTest extends TestCase {
     }
 
     public void testParseDate() throws ParseException {
-        Date actualDate = TeamFoundationServer.TFHistoryParser.parseDate("20 April 2006 02:20:30");
+        Date actualDate = TeamFoundationServer.TFHistoryParser.parseDate("20 April 2006 02:20:30", null);
+        assertEquals(new GregorianCalendar(2006, Calendar.APRIL, 20, 2, 20, 30).getTime(), actualDate);
 
+        // Custom format
+        actualDate = TeamFoundationServer.TFHistoryParser.parseDate(" 02:20:30, 2006, 20 April", "hh:mm:ss, yyy, dd MMMMM");
         assertEquals(new GregorianCalendar(2006, Calendar.APRIL, 20, 2, 20, 30).getTime(), actualDate);
     }
 
     public void testParseDateSweden() throws ParseException {
+        final Date now = new Date();
+
         // Test a non US or GB locale
         Locale.setDefault(new Locale("sv", "SE"));
         TimeZone.setDefault(TimeZone.getTimeZone("CET"));
 
-        Date actualDate = TeamFoundationServer.TFHistoryParser.parseDate("2007-mar-13 17:11:04 ");
-        assertEquals(new GregorianCalendar(2007, Calendar.MARCH, 13, 17, 11, 4).getTime(), actualDate);
+        final DateFormat form = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.LONG, new Locale("sv", "SE"));
+        final DateFormat out = new SimpleDateFormat("yyyy-MM-dd H:m:s");
+
+        final Date parsedDate = TeamFoundationServer.TFHistoryParser.parseDate(form.format(now), null);
+        assertEquals(out.format(now), out.format(parsedDate));
     }
 
     /**
@@ -349,7 +353,7 @@ public class TeamFoundationServerTest extends TestCase {
      * @throws ParseException
      */
     private Modification parseChangeset(String data) throws ParseException {
-        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(data, minDate);
+        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(data, minDate, null);
 
         assertNotNull(list);
         assertTrue(list.get(0) instanceof Modification);

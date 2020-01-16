@@ -48,7 +48,8 @@ public class TeamFoundationServer implements SourceControl {
     private String password;
     private String tfPath = "tf";
     private String options;
-    
+    private String datetimeFormat = null;
+
     /**
      * The encoding of the Team Foundation Client console output stream.
      */
@@ -60,6 +61,15 @@ public class TeamFoundationServer implements SourceControl {
     private String profile;
 
     private final SourceControlProperties properties = new SourceControlProperties();
+
+
+    /**
+     * Sets the format of date/time string in the stream. The format string must be parseable by
+     * {@link java.text.SimpleDateFormat(String)} constructor.
+     */
+    void setDateTimeFormat(String format) {
+        datetimeFormat = format;
+    }
 
     /**
      * The main getModification method called by the build loop. Responsible for
@@ -196,7 +206,7 @@ public class TeamFoundationServer implements SourceControl {
             throws IOException, ParseException {
         
         final InputStreamReader reader = new InputStreamReader(tfStream, inputEncoding);
-        return TFHistoryParser.parse(reader, lastBuild);
+        return TFHistoryParser.parse(reader, lastBuild, datetimeFormat);
     }
 
     /**
@@ -231,6 +241,15 @@ public class TeamFoundationServer implements SourceControl {
                 "The combination of the attributes 'server' or 'profile' is prohibited");
         ValidationHelper.assertIsSet(projectPath, "projectPath", this.getClass());
         ValidationHelper.assertTrue(projectPath.startsWith("$/"), "A TFS server path must begin with $/");
+
+        if (datetimeFormat != null && datetimeFormat.length() > 0) {
+            try {
+                new SimpleDateFormat(datetimeFormat);
+            } catch (IllegalArgumentException exc) {
+                ValidationHelper.fail("Invalid date/time format '" + datetimeFormat + "'for plugin "
+                    + this.getClass());
+            }
+        }
     }
 
     /**
@@ -261,11 +280,14 @@ public class TeamFoundationServer implements SourceControl {
          * Parse the passed stream of data from the command line.
          * @param reader stream to read
          * @param lastBuild last build date
+         * @param datetimeFormat the custom date format set through
+         *      {@link TeamFoundationServer#setDateTimeFormat(String)} (may be <code>null</code>)
          * @return a list of modifications
          * @throws IOException if something breaks
          * @throws ParseException if something breaks
          */
-        static List<Modification> parse(final Reader reader, final Date lastBuild) throws IOException, ParseException {
+        static List<Modification> parse(final Reader reader, final Date lastBuild, final String datetimeFormat)
+                throws IOException, ParseException {
             final ArrayList<Modification> modifications = new ArrayList<Modification>();
             final StringBuffer buffer = new StringBuffer();
 
@@ -278,7 +300,7 @@ public class TeamFoundationServer implements SourceControl {
                 if (line.startsWith(CHANGESET_SEPERATOR)) {
                     if (linecount > 1) {
                         // We are starting a new changeset.
-                        modifications.addAll(parseChangeset(buffer.toString(), lastBuild));
+                        modifications.addAll(parseChangeset(buffer.toString(), lastBuild, datetimeFormat));
                         buffer.setLength(0);
                     }
                 } else {
@@ -287,7 +309,7 @@ public class TeamFoundationServer implements SourceControl {
             }
 
             // Add the last changeset
-            modifications.addAll(parseChangeset(buffer.toString(), lastBuild));
+            modifications.addAll(parseChangeset(buffer.toString(), lastBuild, datetimeFormat));
 
             return modifications;
         }
@@ -297,10 +319,13 @@ public class TeamFoundationServer implements SourceControl {
          * modifications.
          * @param data the data to parse
          * @param lastBuild last build date
+         * @param datetimeFormat the custom date format set through
+         *      {@link TeamFoundationServer#setDateTimeFormat(String)} (may be <code>null</code>)
          * @return a list of modifications
          * @throws ParseException if something breaks
          */
-        static ArrayList<Modification> parseChangeset(final String data, final Date lastBuild) throws ParseException {
+        static ArrayList<Modification> parseChangeset(final String data, final Date lastBuild,
+                final String datetimeFormat) throws ParseException {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Parsing Changeset Data:\n" + data);
             }
@@ -312,7 +337,7 @@ public class TeamFoundationServer implements SourceControl {
                 final String revision = m.group(1);
                 final String userName = m.group(2);
 
-                final Date modifiedTime = parseDate(m.group(3));
+                final Date modifiedTime = parseDate(m.group(3), datetimeFormat);
                 
                 // CC-735.  Ignore changesets that occured before the specified lastBuild.
                 if (modifiedTime.compareTo(lastBuild) < 0) {
@@ -384,34 +409,44 @@ public class TeamFoundationServer implements SourceControl {
             return modifications;
         }
 
-        // Use the deprecated Date.parse method as this is very good at detecting
-        // dates commonly output by the US and UK standard locales of dotnet that
-        // are output by the Microsoft command line client.
-        @SuppressWarnings("deprecation")
-        protected static Date parseDate(final String dateString) throws ParseException {
-            Date date = null;
-            try {
-                // Use the deprecated Date.parse method as this is very good at detecting
-                // dates commonly output by the US and UK standard locales of dotnet that
-                // are output by the Microsoft command line client.
-                date = new Date(Date.parse(dateString));
-            } catch (IllegalArgumentException e) {
-                // ignore - parse failed.
-            }
-            if (date == null) {
-                // The old fashioned way did not work. Let's try it using a more
-                // complex alternative.
-                final DateFormat[] formats = createDateFormatsForLocaleAndTimeZone(null, null);
-                return parseWithFormats(dateString, formats);
-            }
-            return date;
-        }
+        /**
+         * Parse date/time from the given string, optionally using the format provided.
+         * @param dateString the data to parse
+         * @param datetimeFormat the custom date format as recognised by
+                {@link SimpleDateFormat(String)} (may be <code>null</code>)
+         * @return the parsed date
+         * @throws ParseException if the date cannot be parsed
+         */
+        protected static Date parseDate(final String dateString, final String format)
+                throws ParseException {
 
-        private static Date parseWithFormats(final String input, final DateFormat[] formats) throws ParseException {
+            // Standard parsing
+            try {
+                final Date date = DateFormat.getDateTimeInstance().parse(dateString);
+                if (date != null) {
+                    return date;
+                }
+            } catch (ParseException exc) {
+            }
+
+            // Use user-defined format
+            try {
+                final Date date = (format != null ? (new SimpleDateFormat(format)).parse(dateString) : null);
+                if (date != null) {
+                    return date;
+                }
+            } catch (ParseException exc) {
+            }
+
+            // Other formats. Build them here and now, since it depends on locale. This is fixed in runtime,
+            // but it changes in individual tests. Hard-coding it as a static cariable will not work for tests
+            // with non-default locale ...
+            final DateFormat[] formats = createDateFormatsForLocaleAndTimeZone(null, null);
+
             ParseException parseException = null;
-            for (final DateFormat format : formats) {
+            for (final DateFormat f : formats) {
                 try {
-                    return format.parse(input);
+                    return f.parse(dateString);
                 } catch (ParseException ex) {
                     parseException = ex;
                 }
@@ -438,21 +473,14 @@ public class TeamFoundationServer implements SourceControl {
 
             final List<DateFormat> formats = new ArrayList<DateFormat>();
 
-            for (int dateStyle = DateFormat.FULL; dateStyle <= DateFormat.SHORT; dateStyle++) {
-                for (int timeStyle = DateFormat.FULL; timeStyle <= DateFormat.SHORT; timeStyle++) {
-                    final DateFormat df = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);
-                    if (timeZone != null) {
-                        df.setTimeZone(timeZone);
-                    }
-                    formats.add(df);
-                }
-            }
+            // Few hard-coded formats seen in tests.
+            // If you meet another format which needs to be hard-coded, add it here.
+            formats.add(new SimpleDateFormat("E dd MMMMM yyyy H:m:s"));
+            formats.add(new SimpleDateFormat("E, MMMMM dd, yyyy h:m:s a"));
+            formats.add(new SimpleDateFormat("dd MMMMM yyyy H:m:s"));
+            formats.add(new SimpleDateFormat("dd-MMM-yyyy H:m:s"));
 
-            for (int dateStyle = DateFormat.FULL; dateStyle <= DateFormat.SHORT; dateStyle++) {
-                final DateFormat df = DateFormat.getDateInstance(dateStyle, locale);
-                df.setTimeZone(timeZone);
-                formats.add(df);
-            }
+            formats.add(new SimpleDateFormat(TFS_UTC_DATE_FORMAT));
 
             return formats.toArray(new DateFormat[formats.size()]);
         }

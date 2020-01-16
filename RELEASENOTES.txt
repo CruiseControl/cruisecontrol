@@ -56,6 +56,9 @@ DefaultPropertiesPlugin
 ----------------------
 * Allow to define encoding of properties file (UTF-8 is hard-coded default). It fixes wrong data when e.g. UTF-8 files are read but the machine locale is set to another encoding
 
+TeamFoundationServer
+----------------------
+* Add new datetimeformat="" setter in TeamFoundationServer, through which it is possible to set custom date/time format (must be recogised by java.text.SimpleDateFormat(String)) when the date is not parseable by the default implementation.
 
 Dashboard
 ======================
